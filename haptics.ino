@@ -9,8 +9,10 @@ VHBasePrimitives bp;
 
 // Creating a mono channel with channel number, GPIO pin, and channel tags. Channel tags are String ussed to identify the channel.
 VHChannel chnl1(1, 25, {"Left channel", "Channel 1", "Left", "Finger"}, 15);
+VHChannel chnl2(2, 26, {"Right channel", "Channel 2", "Right", "Finger"}, 15);
+VHChannel chnl3(3, 27, 33, {"Motor channel", "Channel 3", "Motor", "Finger"}, 32);
 
-VHChannels channelList({&chnl1}); // Adding all channels to a channel list
+VHChannels channelList({&chnl1, &chnl2, &chnl3}); // Adding all channels to a channel list
 
 // tof stuff
 #include <Wire.h>
@@ -66,10 +68,18 @@ void LoopDriver(void *param)
       }
       float dist = sum/float(count);
       dist = constrain(dist, 0, 1000);
-      float intensity = 1.0 - (dist / 1000.0);
+      float intensity = 1.0 - (dist / 1000.0) - 0.2;    // 0.2 is a constant
       intensity = constrain(intensity, 0.0, 1.0);
       // VIBRATE(FREQ, INTENSITY, DURATION, SHARPNESS));
-      vh.play(VIBRATE(100, intensity, 30, 1));
-      delay(10);
+      vh.play({
+        VIBRATE(100, intensity, 1000, 1),
+        VIBRATE(100, 0.1, 1000, 1),
+        VIBRATE(100, 0.9, 1000, 1)
+      });
+      // vh.play({VIBRATE(100, intensity, 1000, 1)}, 1);
+      // vh.play({VIBRATE(100, 0.1, 1000, 1)}, 2);
+      // vh.play({VIBRATE(100, 0.9, 1000, 1)}, 3);
+      
+      delay(1000);
     }
 }
